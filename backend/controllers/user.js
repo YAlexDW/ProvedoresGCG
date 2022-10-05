@@ -1,32 +1,30 @@
 let bcrypt = require("bcrypt-nodejs");
 let jwt = require("../libs/jwt");
-const user = require("../models/user");
+let User = require("../models/user");
 
 
-const registrar = (req,res)=>{
-    let params= req.body
+const register = (req,res)=>{
+    let params= req.body;
     let user = new User();
     if(
-        params._id &&
-        params.Nombre &&
-        params.NIT &&
-        params.correo_facturacion &&
-        params.celular &&
-        params.Direccion &&
-        params.Cedula &&
-        params.Correo_contacto &&
-        params.Password
+        params.name &&
+        params.nit &&
+        params.billing_email &&
+        params.phoneNumber &&
+        params.adress &&
+        params.identification &&
+        params.contac_email &&
+        params.password 
     ){
-        bcrypt.hash(params.pass,null,null, function(err, hash){
+        bcrypt.hash(params.password,null,null, function(err, hash){
             if(hash){
-        user._id= params._id;
-        user.Nombre= params.Nombre; 
-        user.NIT= params.NIT;
-        user.correo_facturacion = params.correo_facturacion;
-        user.celular= params.celular;
-        user.Direccion= params.Direccion;
-        user.Cedula= params.Cedula;
-        user.Correo_contacto= params.Correo_contacto;
+        user.name= params.name; 
+        user.nit= params.nit;
+        user.billing_email = params.billing_email;
+        user.phoneNumber= params.phoneNumber;
+        user.adress= params.adress;
+        user.identification= params.identification;
+        user.contac_email= params.contac_email;
         user.password = hash;
         user.save((err, savedUser)=>{
             if(err){
@@ -37,26 +35,26 @@ const registrar = (req,res)=>{
             }
             });
         }else {res
-              .status(400)
-              .send({ err: "no se registro la contraseña ni usuario" });
-          }
+            .status(400)
+            .send({ err: "no se registro la contraseña ni usuario" });
+        }
         });
-      } else {
+    } else {
         res.status(405).send({ err: "faltan campos obligatorios" });
-      }
+    }
     };
 
 const login = (req,res)=>{
-    let= req.body
+    let params = req.body
 
-    user.findOne({Correo_contacto: params.Correo_contacto},(err, userData)=>{
+    User.findOne({contac_email: params.contac_email},(err, userData)=>{
         if(err){
             res.status(500).send({ message : "server error"});
         }else{
             if(userData){
-                bcrypt.compare(params.pass,userData.pass, (err,confirm)=>{
-                    if(confirm){
-                        if(params.getToken){
+                bcrypt.compare(params.password,userData.password, (err,confirm)=>{
+                    if(confirm){ 
+                        if(params.getToken){console.log(params.getToken)
                             res.status(200).send({
                                 jwt: jwt.createToken(userData),
                                 user: userData
@@ -75,7 +73,7 @@ const login = (req,res)=>{
     })
 }
 
-const listaUsuario =(req,res)=>{
+const userlist =(req,res)=>{
     user.find((err,userData)=>{
         if(userData) {
             res.status(200).send({user: userData});
@@ -83,7 +81,7 @@ const listaUsuario =(req,res)=>{
     });
 };
 
-const Usuariobyid = (req,res)=> {
+const getuserid = (req,res)=> {
     let id = req.params["id"];
     user.findById(id,(err,userData)=> {
         if (userData) {
@@ -95,42 +93,42 @@ const Usuariobyid = (req,res)=> {
 }
 
 
-const editarUsuario =(req,res)=> {
+const edituser =(req,res)=> {
     let id = req.params["id"];
-  let params = req.body;
-  if (params.pass) {
-    bcrypt.hash(params.pass, null, null, (err, hash) => {
-      if (hash) {
-        user.findByIdAndUpdate(id,
+let params = req.body;
+if (params.password) {
+    bcrypt.hash(params.password, null, null, (err, hash) => {
+    if (hash) {
+        User.findByIdAndUpdate(id,
             {
-        Nombre: params.Nombre, 
-        NIT: params.NIT,
-        correo_facturacion : params.correo_facturacion,
-        celular: params.celular,
-        Direccion: params.Direccion,
-        Cedula: params.Cedula,
-        Correo_contacto: params.Correo_contacto,
+        name: params.name, 
+        nit: params.nit,
+        billing_email : params.billing_email,
+        phoneNumber: params.phoneNumber,
+        adress: params.adress,
+        identification: params.identification,
+        contac_email: params.contac_email,
         password : hash,
             },
-       (err,userData)=>{
+    (err,userData)=>{
         if(userData) {
             res.status(200).send({ User: userData });
             } else {
             res.status(501).send({ message: "El usuario no se pudo editar" });
         }
-     }    
- )}
+    }    
+)}
 });
-  }else{
-    {user.findByIdAndUpdate(id,
+}else{
+    {User.findByIdAndUpdate(id,
         {
-            Nombre: params.Nombre, 
-            NIT: params.NIT,
-            correo_facturacion: params.correo_facturacion,
-            celular: params.celular,
-            Direccion: params.Direccion,
-            Cedula: params.Cedula,
-            Correo_contacto: params.Correo_contacto,
+            name: params.name, 
+            nit: params.nit,
+            billing_email: params.billing_email,
+            phoneNumber: params.phoneNumber,
+            adress: params.adress,
+            identification: params.identification,
+            contac_email: params.contac_email,
         },
     (err,userData)=>{
         if(userData) {
@@ -143,14 +141,14 @@ const editarUsuario =(req,res)=> {
 }
 }
 
-const eliminarUsuario= (req,res) => {
+const deleteuser= (req,res) => {
     let id = req.params["id"];
         User.findByIdAndDelete({ _id: id }, (err, userData) => {
     if (err) {
     res.status(500).send({ message: "Error al conectar al servidor" });
     } else {
     if (userData) {
-    res.status(200).send({ Usuario: userData });
+    res.status(200).send({ User: userData });
     } else {
         res.status(401).send({ message: "Error al eliminar" });
     }
@@ -159,10 +157,10 @@ const eliminarUsuario= (req,res) => {
 };
 
 module.exports={
-    registrar,
+    register,
     login,
-    listaUsuario,
-    Usuariobyid,
-    editarUsuario,
-    eliminarUsuario,
+    userlist,
+    getuserid,
+    edituser,
+    deleteuser,
 };

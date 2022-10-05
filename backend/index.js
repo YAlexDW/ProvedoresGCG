@@ -13,21 +13,21 @@ mongoose.connect("mongodb+srv://userGCG:gallardo12@cluster0.orkrkzu.mongodb.net/
         if (err) {
             throw err;
         } else {
-            console.log('Base De Datos On..');
+            console.log('BD On..');
             app.listen(port, function () {
-                console.log("Servidor Backend Funcionando");
-             });
+                console.log("Servidor Backend On");
+        });
     }
     });
 
     mongoose.connection.on('connected', () => {
         console.log("mongo atlas");
-      });
-      
+    });
 
 
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(bodyParser.json())
+
 
 app.use((req,res,next)=>{
     res.header("Content-Type: application/json");
